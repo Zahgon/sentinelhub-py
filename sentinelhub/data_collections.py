@@ -109,8 +109,7 @@ class OrbitDirection:
 
 def _shallow_asdict(dataclass_instance: Any) -> dict[str, Any]:
     """Returns a dictionary of fields and values, but is not recursive and does not deepcopy like `asdict`"""
-    # This definition needs to be above the class definitions in the file
-    return {field.name: getattr(dataclass_instance, field.name) for field in fields(dataclass_instance)}
+    pass
 
 
 class _DataCollectionMeta(EnumMeta):
@@ -176,10 +175,7 @@ class DataCollectionDefinition:
         :param params: Any of DataCollectionDefinition attributes
         :return: A new data collection definition
         """
-        derived_params = _shallow_asdict(self)
-        derived_params.update(params)
-
-        return DataCollectionDefinition(**derived_params)
+        pass
 
 
 class DataCollection(Enum, metaclass=_DataCollectionMeta):
@@ -463,29 +459,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
             `DEM documentation <https://docs.sentinel-hub.com/api/latest/data/dem/#deminstance>`__
         :return: A new data collection
         """
-        definition = DataCollectionDefinition(
-            api_id=api_id,
-            catalog_id=catalog_id,
-            wfs_id=wfs_id,
-            service_url=service_url,
-            collection_type=collection_type,
-            sensor_type=sensor_type,
-            processing_level=processing_level,
-            swath_mode=swath_mode,
-            polarization=polarization,
-            resolution=resolution,
-            orbit_direction=orbit_direction,
-            timeliness=timeliness,
-            bands=bands,
-            metabands=metabands,
-            collection_id=collection_id,
-            is_timeless=is_timeless,
-            has_cloud_coverage=has_cloud_coverage,
-            dem_instance=dem_instance,
-            _name=name,
-        )
-        cls._try_add_data_collection(name, definition)
-        return cls(definition)
+        pass
 
     def define_from(self, name: str, **params: Any) -> DataCollection:
         """Define a new data collection from an existing one
@@ -494,11 +468,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :param params: Any parameter to override current data collection parameters
         :return: A new data collection
         """
-        definition = self.value
-        new_definition = definition.derive(**params, _name=name)
-
-        self._try_add_data_collection(name, new_definition)
-        return DataCollection(new_definition)
+        pass
 
     @classmethod
     def _try_add_data_collection(cls, name: str, definition: DataCollectionDefinition) -> None:
@@ -506,25 +476,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         anything. However, if either a name or a definition has already been matched with another name or definition
         then it will raise an error.
         """
-        is_name_defined = name in cls.__members__
-        is_enum_defined = is_name_defined and cls.__members__[name].value == definition
-        is_definition_defined = definition in cls._value2member_map_
-
-        if is_enum_defined:
-            return
-
-        if not is_name_defined and not is_definition_defined:
-            extend_enum(cls, name, definition)
-            return
-
-        if is_name_defined:
-            raise ValueError(f"Data collection name `{name}` is already taken by another data collection")
-
-        existing_collection = cls._value2member_map_[definition]
-        raise ValueError(
-            f"Data collection definition is already taken by {existing_collection}. Two different "
-            "DataCollection enums cannot have the same definition."
-        )
+        pass
 
     @classmethod
     def define_byoc(cls, collection_id: str, **params: Any) -> DataCollection:
@@ -534,13 +486,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :param params: Any parameter to override default BYOC data collection parameters
         :return: A new data collection
         """
-        params["name"] = params.get("name", f"BYOC_{collection_id}")
-        params["api_id"] = params.get("api_id", f"byoc-{collection_id}")
-        params["catalog_id"] = params.get("catalog_id", f"byoc-{collection_id}")
-        params["wfs_id"] = params.get("wfs_id", f"byoc-{collection_id}")
-        params["collection_type"] = params.get("collection_type", _CollectionType.BYOC)
-        params["collection_id"] = collection_id
-        return cls.define(**params)
+        pass
 
     @classmethod
     def define_batch(cls, collection_id: str, **params: Any) -> DataCollection:
@@ -550,13 +496,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :param params: Any parameter to override default BATCH data collection parameters
         :return: A new data collection
         """
-        params["name"] = params.get("name", f"BATCH_{collection_id}")
-        params["api_id"] = params.get("api_id", f"batch-{collection_id}")
-        params["catalog_id"] = params.get("catalog_id", f"batch-{collection_id}")
-        params["wfs_id"] = params.get("wfs_id", f"batch-{collection_id}")
-        params["collection_type"] = params.get("collection_type", _CollectionType.BATCH)
-        params["collection_id"] = collection_id
-        return cls.define(**params)
+        pass
 
     @property
     def api_id(self) -> str:
@@ -565,9 +505,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :return: An identifier
         :raises: ValueError
         """
-        if self.value.api_id is None:
-            raise ValueError(f"Data collection {self.name} is missing a Sentinel Hub Process API identifier")
-        return self.value.api_id
+        pass
 
     @property
     def catalog_id(self) -> str:
@@ -576,12 +514,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :return: An identifier
         :raises: ValueError
         """
-        if self.value.catalog_id is not None:
-            return self.value.catalog_id
-        if self.value.api_id is not None:
-            # A fallback because Process API and Catalog API IDs should now be unified
-            return self.value.api_id
-        raise ValueError(f"Data collection {self.name} is missing a Sentinel Hub Catalog API identifier")
+        pass
 
     @property
     def wfs_id(self) -> str:
@@ -590,9 +523,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :return: An identifier
         :raises: ValueError
         """
-        if self.value.wfs_id is None:
-            raise ValueError(f"Data collection {self.name} is missing a Sentinel Hub WFS identifier")
-        return self.value.wfs_id
+        pass
 
     @property
     def bands(self) -> tuple[Band, ...]:
@@ -601,9 +532,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :return: A tuple of band info
         :raises: ValueError
         """
-        if self.value.bands is None:
-            raise ValueError(f"Data collection {self.name} does not define bands")
-        return self.value.bands
+        pass
 
     @property
     def metabands(self) -> tuple[Band, ...]:
@@ -612,9 +541,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :return: A tuple of metaband info
         :raises: ValueError
         """
-        if self.value.metabands is None:
-            raise ValueError(f"Data collection {self.name} does not define metabands")
-        return self.value.metabands
+        pass
 
     def __getattr__(self, item: str) -> Any:
         """The following insures that any attribute from DataCollectionDefinition, which is already not a
@@ -635,7 +562,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
 
         :return: `True` if collection is Sentinel-1 collection type and `False` otherwise
         """
-        return self.collection_type == _CollectionType.SENTINEL1
+        pass
 
     @property
     def is_byoc(self) -> bool:
@@ -643,7 +570,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
 
         :return: `True` if collection is a BYOC collection type and `False` otherwise
         """
-        return self.collection_type == _CollectionType.BYOC
+        pass
 
     @property
     def is_batch(self) -> bool:
@@ -651,7 +578,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
 
         :return: `True` if collection is a batch collection type and `False` otherwise
         """
-        return self.collection_type == _CollectionType.BATCH
+        pass
 
     def contains_orbit_direction(self, orbit_direction: str) -> bool:
         """Checks if a data collection contains given orbit direction
@@ -659,10 +586,7 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
         :param orbit_direction: An orbit direction
         :return: `True` if data collection contains the orbit direction
         """
-        defined_direction = self.orbit_direction
-        if defined_direction is None or defined_direction.upper() == OrbitDirection.BOTH:
-            return True
-        return orbit_direction.upper() == defined_direction.upper()
+        pass
 
     @classmethod
     def get_available_collections(cls) -> list[DataCollection]:
@@ -670,4 +594,4 @@ class DataCollection(Enum, metaclass=_DataCollectionMeta):
 
         :return: List of available data collections
         """
-        return list(cls)
+        pass

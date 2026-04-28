@@ -72,7 +72,7 @@ class SentinelHubRequest(SentinelHubBaseApiRequest):
 
     @property
     def mime_type(self) -> MimeType:
-        return self._mime_type
+        pass
 
     @staticmethod
     def body(
@@ -91,15 +91,7 @@ class SentinelHubRequest(SentinelHubBaseApiRequest):
         :param other_args: Additional dictionary of arguments. If provided, the resulting dictionary will get updated
             by it.
         """
-        request_body = {"input": {"bounds": request_bounds, "data": request_data}, "evalscript": evalscript}
-
-        if request_output is not None:
-            request_body["output"] = request_output
-
-        if other_args:
-            _update_other_args(request_body, other_args)
-
-        return request_body
+        pass
 
     @staticmethod
     def output_response(
@@ -112,12 +104,7 @@ class SentinelHubRequest(SentinelHubBaseApiRequest):
         :param other_args: Additional dictionary of arguments. If provided, the resulting dictionary will get updated
             by it.
         """
-        output_response = {"identifier": identifier, "format": {"type": MimeType(response_format).get_string()}}
-
-        if other_args:
-            _update_other_args(output_response, other_args)
-
-        return output_response
+        pass
 
     @staticmethod
     def output(
@@ -134,20 +121,7 @@ class SentinelHubRequest(SentinelHubBaseApiRequest):
         :param other_args: Additional dictionary of arguments. If provided, the resulting dictionary will get updated
             by it.
         """
-        if size and resolution:
-            raise ValueError("Either size or resolution argument should be given, not both.")
-
-        request_output: JsonDict = {"responses": responses}
-
-        if size:
-            request_output["width"], request_output["height"] = size
-        if resolution:
-            request_output["resx"], request_output["resy"] = resolution
-
-        if other_args:
-            _update_other_args(request_output, other_args)
-
-        return request_output
+        pass
 
 
 class AsyncProcessRequest(SentinelHubBaseApiRequest):
@@ -209,7 +183,7 @@ class AsyncProcessRequest(SentinelHubBaseApiRequest):
 
     @property
     def mime_type(self) -> MimeType:
-        return self._mime_type
+        pass
 
     @staticmethod
     def body(
@@ -229,19 +203,7 @@ class AsyncProcessRequest(SentinelHubBaseApiRequest):
         :param other_args: Additional dictionary of arguments. If provided, the resulting dictionary will get updated
             by it.
         """
-        request_body = {
-            "input": {"bounds": request_bounds, "data": request_data},
-            "evalscript": evalscript,
-            "evalscriptReference": evalscript_reference,
-        }
-
-        if request_output is not None:
-            request_body["output"] = request_output
-
-        if other_args:
-            _update_other_args(request_body, other_args)
-
-        return remove_undefined(request_body)
+        pass
 
     @staticmethod
     def output_response(
@@ -254,12 +216,7 @@ class AsyncProcessRequest(SentinelHubBaseApiRequest):
         :param other_args: Additional dictionary of arguments. If provided, the resulting dictionary will get updated
             by it.
         """
-        output_response = {"identifier": identifier, "format": {"type": MimeType(response_format).get_string()}}
-
-        if other_args:
-            _update_other_args(output_response, other_args)
-
-        return output_response
+        pass
 
     @staticmethod
     def output(
@@ -277,20 +234,7 @@ class AsyncProcessRequest(SentinelHubBaseApiRequest):
         :param other_args: Additional dictionary of arguments. If provided, the resulting dictionary will get updated
             by it.
         """
-        if size and resolution:
-            raise ValueError("Either size or resolution argument should be given, not both.")
-
-        request_output: JsonDict = {"responses": responses, "delivery": delivery}
-
-        if size:
-            request_output["width"], request_output["height"] = size
-        if resolution:
-            request_output["resx"], request_output["resy"] = resolution
-
-        if other_args:
-            _update_other_args(request_output, other_args)
-
-        return request_output
+        pass
 
 
 def get_async_running_status(ids: Iterable[str], config: SHConfig | None = None) -> dict[str, bool]:
@@ -300,20 +244,4 @@ def get_async_running_status(ids: Iterable[str], config: SHConfig | None = None)
     :param config: A custom instance of config class to override parameters from the saved configuration.
     :return: A mapping that specifies whether a process is running for each of the IDs.
     """
-    config = config or SHConfig()
-    client = SentinelHubDownloadClient(config=config)
-    result = {}
-    for request_id in ids:
-        try:
-            client.get_json_dict(f"{config.sh_base_url}/api/v1/async/process/{request_id}", use_session=True)
-            # A successful request means it's running
-            result[request_id] = True
-        except DownloadFailedException as exception:  # noqa: PERF203
-            # A 404 means it's not running
-            if exception.request_exception is not None and exception.request_exception.response is not None:
-                if exception.request_exception.response.status_code == requests.status_codes.codes.NOT_FOUND:
-                    result[request_id] = False
-            else:
-                raise exception from exception
-
-    return result
+    pass

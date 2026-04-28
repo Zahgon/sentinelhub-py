@@ -62,12 +62,7 @@ class SentinelHubDownloadClient(DownloadClient):
         :param args: Passed to `DownloadClient.download`
         :param kwargs: Passed to `DownloadClient.download`
         """
-        # Because the Lock object cannot be pickled we create it only here and remove it afterward
-        self.lock = Lock()
-        try:
-            return super().download(*args, **kwargs)
-        finally:
-            self.lock = None
+        pass
 
     @retry_temporary_errors
     @fail_user_errors
@@ -75,67 +70,22 @@ class SentinelHubDownloadClient(DownloadClient):
         """
         Executes the download with a single thread and uses a rate limit object, which is shared between all threads
         """
-        download_attempts = 0
-        while True:
-            sleep_time = self._execute_thread_safe(self.rate_limit.register_next)
-
-            if sleep_time == 0:
-                download_attempts += 1
-                LOGGER.debug(
-                    "Sending %s request to %s. Hash of sent request is %s",
-                    request.request_type.value,
-                    request.url,
-                    request.get_hashed_name(),
-                )
-                response = self._do_download(request)
-
-                if response.status_code == requests.status_codes.codes.TOO_MANY_REQUESTS:
-                    warnings.warn("Download rate limit hit", category=SHRateLimitWarning)
-                    if self.config.max_retries is not None and download_attempts >= self.config.max_retries:
-                        raise OutOfRequestsException("Maximum number of download attempts reached")
-
-                    self._execute_thread_safe(self.rate_limit.update, response.headers, default=self.default_retry_time)
-                    continue
-
-                response.raise_for_status()
-
-                LOGGER.debug("Successful %s request to %s", request.request_type.value, request.url)
-                return DownloadResponse.from_response(response, request)
-
-            LOGGER.debug("Request needs to wait. Sleeping for %0.2f", sleep_time)
-            time.sleep(sleep_time)
+        pass
 
     def _execute_thread_safe(self, thread_unsafe_function: Callable[..., T], *args: Any, **kwargs: Any) -> T:
         """Executes a function inside a thread lock and handles potential errors"""
-        if self.lock is None:
-            return thread_unsafe_function(*args, **kwargs)
-
-        with self.lock:
-            return thread_unsafe_function(*args, **kwargs)
+        pass
 
     def _do_download(self, request: DownloadRequest) -> Response:
         """Runs the download"""
-        if request.url is None:
-            raise ValueError(f"Faulty request {request}, no URL specified.")
-
-        return requests.request(
-            request.request_type.value,
-            url=request.url,
-            json=request.post_values,
-            headers=self._prepare_headers(request),
-            timeout=self.config.download_timeout_seconds,
-        )
+        pass
 
     def _prepare_headers(self, request: DownloadRequest) -> JsonDict:
         """Prepares final headers by potentially joining them with session headers. Note that in the current
         implementation of this method request headers have priority to overwrite default and session headers with the
         same keys.
         """
-        session_headers: JsonDict = {}
-        if request.use_session:
-            session_headers = self._execute_thread_safe(self._get_session_headers)
-
-        return {**SHConstants.HEADERS, **session_headers, **request.headers}
+        pass
 
     def _get_session_headers(self) -> JsonDict:
         """Provides up-to-date session headers
@@ -143,26 +93,14 @@ class SentinelHubDownloadClient(DownloadClient):
         Note that calling session_headers property triggers update if session has expired therefore this has to be
         called in a thread-safe way
         """
-        return self.get_session().session_headers
+        pass
 
     def get_session(self) -> SentinelHubSession:
         """Provides the session object used by the client
 
         :return: A Sentinel Hub session object
         """
-        if self.session:
-            return self.session
-
-        cache_key = self._get_cache_key(self.config)
-        if cache_key in SentinelHubDownloadClient._CACHED_SESSIONS:
-            session = SentinelHubDownloadClient._CACHED_SESSIONS[cache_key]
-        elif SentinelHubDownloadClient._UNIVERSAL_CACHE_KEY in SentinelHubDownloadClient._CACHED_SESSIONS:
-            session = SentinelHubDownloadClient._CACHED_SESSIONS[SentinelHubDownloadClient._UNIVERSAL_CACHE_KEY]
-        else:
-            session = SentinelHubSession(config=self.config)
-            SentinelHubDownloadClient._CACHED_SESSIONS[cache_key] = session
-
-        return session
+        pass
 
     @staticmethod
     def cache_session(session: SentinelHubSession, universal: bool = False) -> None:
@@ -175,42 +113,16 @@ class SentinelHubDownloadClient(DownloadClient):
             purpose of this parameter is that when a session is sent to a remote processing instance, which doesn't
             have configured Sentinel Hub OAuth credentials, then the session can still be used even without credentials.
         """
-        if not isinstance(session, SentinelHubSession):
-            raise ValueError(
-                f"Given object should be an instance of {SentinelHubSession.__name__} but {session} was given"
-            )
-
-        cache_key = (
-            SentinelHubDownloadClient._UNIVERSAL_CACHE_KEY
-            if universal
-            else SentinelHubDownloadClient._get_cache_key(session)
-        )
-        SentinelHubDownloadClient._CACHED_SESSIONS[cache_key] = session
+        pass
 
     @staticmethod
     def _get_cache_key(config_or_session: SentinelHubSession | SHConfig) -> tuple[str, str]:
         """Calculates a cache key for the given session or config object. The key consists of an OAuth client ID and
         a base service URL.
         """
-        if isinstance(config_or_session, SHConfig):
-            return config_or_session.sh_client_id, config_or_session.sh_base_url
-
-        if isinstance(config_or_session, SentinelHubSession):
-            base_url = config_or_session.config.sh_base_url
-
-            # If session was generated from token then config_or_session.config.sh_client_id could have wrong client id.
-            sh_client_id = config_or_session.info().get("azp", "")
-            if not sh_client_id:
-                warnings.warn(
-                    "Failed to read client ID from OAuth token. Session caching might not work correctly.",
-                    category=SHRuntimeWarning,
-                )
-
-            return sh_client_id, base_url
-
-        raise ValueError(f"Expected a config or a session object but got {config_or_session}")
+        pass
 
     @staticmethod
     def clear_cache() -> None:
         """Clears cached sessions."""
-        SentinelHubDownloadClient._CACHED_SESSIONS = {}
+        pass

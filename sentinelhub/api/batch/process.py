@@ -38,14 +38,11 @@ class BatchProcessClient(BaseBatchClient):
     @staticmethod
     def _get_service_url(base_url: str) -> str:
         """Provides URL to Catalog API"""
-        return f"{base_url}/api/v2/batch"
+        pass
 
     def _get_processing_url(self, request_id: Optional[str] = None) -> str:
         """Creates a URL for process endpoint"""
-        url = f"{self.service_url}/process"
-        if request_id is None:
-            return url
-        return f"{url}/{request_id}"
+        pass
 
     def create(
         self,
@@ -70,32 +67,7 @@ class BatchProcessClient(BaseBatchClient):
         :param description: A description of a batch request
         :param kwargs: Any other arguments to be added to a dictionary of parameters.
         """
-
-        if isinstance(process_request, SentinelHubRequest):
-            request_dict = process_request.download_list[0].post_values
-        else:
-            request_dict = process_request
-
-        if not isinstance(request_dict, dict):
-            raise ValueError(
-                "Parameter sentinelhub_request should be an instance of SentinelHubRequest or a "
-                "dictionary with a request payload"
-            )
-
-        payload = remove_undefined(
-            {
-                "processRequest": request_dict,
-                "input": input,
-                "output": output,
-                "instanceType": instance_type,
-                "description": description,
-                **kwargs,
-            }
-        )
-
-        request_info = self.client.get_json_dict(self._get_processing_url(), post_values=payload, use_session=True)
-
-        return BatchProcessRequest.from_dict(request_info)
+        pass
 
     @staticmethod
     def geopackage_input(geopackage_specification: AccessSpecification) -> JsonDict:
@@ -104,7 +76,7 @@ class BatchProcessClient(BaseBatchClient):
         :param geopackage_specification: A specification of the S3 path for the Geopackage. Can be built using the
             `s3_specification` helper method.
         """
-        return {"type": "geopackage", "features": geopackage_specification}
+        pass
 
     @staticmethod
     def tiling_grid_input(
@@ -118,16 +90,7 @@ class BatchProcessClient(BaseBatchClient):
         :param buffer_y: Will expand each output tile vertically (up and down) by specified number of pixels.
         :param kwargs: Any other arguments to be added to a dictionary of parameters
         """
-        return remove_undefined(
-            {
-                "type": "tiling-grid",
-                "id": grid_id,
-                "resolution": resolution,
-                "bufferX": buffer_x,
-                "bufferY": buffer_y,
-                **kwargs,
-            }
-        )
+        pass
 
     @staticmethod
     def raster_output(
@@ -155,19 +118,7 @@ class BatchProcessClient(BaseBatchClient):
         :param collection_id: If True results will be added to an existing collection
         :param kwargs: Any other arguments to be added to a dictionary of parameters
         """
-        return remove_undefined(
-            {
-                "type": "raster",
-                "delivery": delivery,
-                "overwrite": overwrite,
-                "skipExisting": skip_existing,
-                "cogOutput": cog_output,
-                "cogParameters": cog_parameters,
-                "createCollection": create_collection,
-                "collectionId": collection_id,
-                **kwargs,
-            }
-        )
+        pass
 
     @staticmethod
     def zarr_output(
@@ -192,16 +143,7 @@ class BatchProcessClient(BaseBatchClient):
         :param array_overrides: Overrides the values of `array_arameters` for individual arrays.
         :param kwargs: Any other arguments to be added to a dictionary of parameters
         """
-        return remove_undefined(
-            {
-                "type": "zarr",
-                "delivery": delivery,
-                "group": group,
-                "arrayParameter": array_parameters,
-                "arrayOverrides": array_overrides,
-                **kwargs,
-            }
-        )
+        pass
 
     def iter_requests(
         self, user_id: Optional[str] = None, search: Optional[str] = None, sort: Optional[str] = None, **kwargs: Any
@@ -216,21 +158,14 @@ class BatchProcessClient(BaseBatchClient):
         :param kwargs: Any additional parameters to include in a request query
         :return: An iterator over existing batch requests
         """
-        params = remove_undefined({"userid": user_id, "search": search, "sort": sort, **kwargs})
-        feature_iterator = SentinelHubFeatureIterator(
-            client=self.client, url=self._get_processing_url(), params=params, exception_message="No requests found"
-        )
-        for request_info in feature_iterator:
-            yield BatchProcessRequest.from_dict(request_info)
+        pass
 
     def get_request(self, batch_request: BatchRequestType) -> "BatchProcessRequest":
         """Collects information about a single batch request.
 
         `Batch Process V2 <https://docs.sentinel-hub.com/api/latest/api/batchv2/>`__
         """
-        request_id = self._parse_request_id(batch_request)
-        request_info = self.client.get_json_dict(url=self._get_processing_url(request_id), use_session=True)
-        return BatchProcessRequest.from_dict(request_info)
+        pass
 
     def update_request(self, batch_request: BatchRequestType, description: str) -> Json:
         """Update certain batch job request parameters. Can only update requests that are not currently being processed.
@@ -240,35 +175,28 @@ class BatchProcessClient(BaseBatchClient):
         :param batch_request: Batch request ID, a dictionary containing an "ID" field, or a BatchProcessRequest.
         :param description: A description of a batch request to be updated.
         """
-        request_id = self._parse_request_id(batch_request)
-
-        return self.client.get_json(
-            url=self._get_processing_url(request_id),
-            post_values={"description": description},
-            request_type=RequestType.PUT,
-            use_session=True,
-        )
+        pass
 
     def start_analysis(self, batch_request: BatchRequestType) -> Json:
         """Starts analysis of a batch job request
 
         :param batch_request: Batch request ID, a dictionary containing an "ID" field, or a BatchProcessRequest.
         """
-        return self._call_job(batch_request, "analyse")
+        pass
 
     def start_job(self, batch_request: BatchRequestType) -> Json:
         """Starts running a batch job
 
         :param batch_request: Batch request ID, a dictionary containing an "ID" field, or a BatchProcessRequest.
         """
-        return self._call_job(batch_request, "start")
+        pass
 
     def stop_job(self, batch_request: BatchRequestType) -> Json:
         """Stops a batch job
 
         :param batch_request: Batch request ID, a dictionary containing an "ID" field, or a BatchProcessRequest.
         """
-        return self._call_job(batch_request, "stop")
+        pass
 
     def iter_tiling_grids(self, **kwargs: Any) -> SentinelHubFeatureIterator:
         """An iterator over tiling grids
@@ -278,12 +206,7 @@ class BatchProcessClient(BaseBatchClient):
         :param kwargs: Any other request query parameters
         :return: An iterator over tiling grid definitions
         """
-        return SentinelHubFeatureIterator(
-            client=self.client,
-            url=f"{self.service_url}/tilinggrids",
-            params=remove_undefined(kwargs),
-            exception_message="Failed to obtain information about available tiling grids",
-        )
+        pass
 
     def get_tiling_grid(self, grid_id: int) -> JsonDict:
         """Provides a single tiling grid
@@ -293,8 +216,7 @@ class BatchProcessClient(BaseBatchClient):
         :param grid_id: An ID of a requested tiling grid
         :return: A tiling grid definition
         """
-        url = f"{self.service_url}/tilinggrids/{grid_id}"
-        return self.client.get_json_dict(url=url, use_session=True)
+        pass
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL, undefined=Undefined.INCLUDE)

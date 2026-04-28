@@ -42,13 +42,7 @@ class SentinelHubRateLimit:
 
     def register_next(self) -> float:
         """Determines if next download request can start or not by returning the waiting time in seconds."""
-        current_time = time.monotonic()
-        wait_time = max(self.next_download_time - current_time, 0)
-
-        if wait_time == 0:
-            self.next_download_time = max(current_time + self.wait_time, self.next_download_time)
-
-        return wait_time
+        pass
 
     def update(self, headers: dict, *, default: float) -> None:
         """Update the next possible download time if the service has responded with the rate limit.
@@ -57,11 +51,7 @@ class SentinelHubRateLimit:
         :param default: The default waiting time (in milliseconds) when retrying after getting a
             TOO_MANY_REQUESTS response without appropriate retry headers.
         """
-        retry_after: float = int(headers.get(self.RETRY_HEADER, default))  # can be a string representation of a number
-        retry_after = retry_after / 1000
-
-        if retry_after:
-            self.next_download_time = max(time.monotonic() + retry_after, self.next_download_time)
+        pass
 
 
 class PolicyBucket:
@@ -96,11 +86,7 @@ class PolicyBucket:
         In the calculation it assumes that during the elapsed time bucket was being filled all the time - i.e. it
         assumes the bucket has never been full for a non-zero amount of time in the elapsed time period.
         """
-        content_difference = self.content - new_content
-        if not self.is_fixed():
-            content_difference += elapsed_time * self.refill_per_second
-
-        return content_difference / elapsed_time
+        pass
 
     def get_wait_time(
         self,
@@ -111,18 +97,12 @@ class PolicyBucket:
         buffer_cost: float = 0.5,
     ) -> float:
         """Expected time a user would have to wait for this bucket"""
-        overall_completed_cost = requests_completed * cost_per_request * process_num
-        expected_content = max(self.content + elapsed_time * self.refill_per_second - overall_completed_cost, 0)
-
-        if self.is_fixed():
-            return -1 if expected_content < cost_per_request else 0
-
-        return max(cost_per_request - expected_content + buffer_cost, 0) / self.refill_per_second
+        pass
 
     def is_request_bucket(self) -> bool:
         """Checks if bucket counts requests"""
-        return self.policy_type is PolicyType.REQUESTS
+        pass
 
     def is_fixed(self) -> bool:
         """Checks if bucket has a fixed number of requests"""
-        return self.refill_period == "PT0S"
+        pass

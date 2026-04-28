@@ -29,13 +29,12 @@ def main_help() -> None:
     To check more about certain module command use: \n
       sentinelhub.<module name> --help
     """
+    pass
 
 
 def _config_options(func: FC) -> FC:
     """A helper function which joins `click.option` functions of each parameter from `SHConfig`."""
-    for param in list(SHConfig().to_dict())[-1::-1]:
-        func = click.option(f"--{param}", param, help=f"Set new values to configuration parameter `{param}`")(func)
-    return func
+    pass
 
 
 @click.command()
@@ -51,31 +50,7 @@ def config(show: bool, profile: str | None, **params: Any) -> None:
       sentinelhub.config --instance_id <new instance id>
       sentinelhub.config --max_download_attempts 5 --download_sleep_time 20 --download_timeout_seconds 120
     """
-    sh_config = SHConfig(profile=profile)
-    old_config = sh_config.copy()
-
-    for param, value in params.items():
-        if value is not None:
-            try:
-                value = int(value)
-            except ValueError:
-                if value.lower() == "true":
-                    value = True
-                elif value.lower() == "false":
-                    value = False
-            if getattr(sh_config, param) != value:
-                setattr(sh_config, param, value)
-
-    sh_config.save(profile=profile)
-
-    for param, value in sh_config.to_dict(mask_credentials=False).items():
-        if value != getattr(old_config, param):
-            click.echo(f"The value of parameter `{param}` was updated to {value!r}")
-
-    if show:
-        unmasked_str_repr = json.dumps(sh_config.to_dict(mask_credentials=False), indent=2)
-        click.echo(unmasked_str_repr)
-        click.echo(f"Configuration file location: {sh_config.get_config_location()}")
+    pass
 
 
 @click.command()
@@ -90,8 +65,4 @@ def download(url: str, filename: str, redownload: bool) -> None:
     sentinelhub.download https://roda.sentinel-hub.com/sentinel-s2-l1c/tiles/36/M/ZB/2022/3/17/0/metadata.xml \
 ./data/example.xml
     """
-    data_folder, filename = filename.rsplit("/", 1)
-    download_list = [
-        DownloadRequest(url=url, data_folder=data_folder, filename=filename, save_response=True, return_data=False)
-    ]
-    DownloadClient(redownload=redownload).download(download_list)
+    pass

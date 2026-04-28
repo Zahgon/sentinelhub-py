@@ -82,7 +82,7 @@ class SentinelHubBYOC(SentinelHubService):
     @staticmethod
     def _get_service_url(base_url: str) -> str:
         """Provides URL to Catalog API"""
-        return f"{base_url}/api/v1/byoc"
+        pass
 
     def iter_collections(self, search: Optional[str] = None, **kwargs: Any) -> SentinelHubFeatureIterator:
         """Retrieve collections
@@ -93,12 +93,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param kwargs: Any other request parameters
         :return: iterator over collections
         """
-        return SentinelHubFeatureIterator(
-            client=self.client,
-            url=f"{self.service_url}/collections",
-            params={"search": search, **kwargs},
-            exception_message="Failed to obtain information about available BYOC collections",
-        )
+        pass
 
     def get_collection(self, collection: CollectionType) -> JsonDict:
         """Get collection by its id
@@ -108,8 +103,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param collection: a ByocCollection, dict or collection id string
         :return: dictionary of the collection
         """
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}"
-        return self.client.get_json_dict(url=url, use_session=True, extract_key="data")
+        pass
 
     def create_collection(self, collection: CollectionType) -> JsonDict:
         """Create a new collection
@@ -119,9 +113,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param collection: ByocCollection object or a dictionary
         :return: dictionary of the created collection
         """
-        coll = self._to_dict(collection)
-        url = f"{self.service_url}/collections"
-        return self.client.get_json_dict(url=url, post_values=coll, use_session=True, extract_key="data")
+        pass
 
     def update_collection(self, collection: CollectionType) -> Json:
         """Update an existing collection
@@ -130,12 +122,7 @@ class SentinelHubBYOC(SentinelHubService):
 
         :param collection: ByocCollection object or a dictionary
         """
-        coll = self._to_dict(collection)
-        url = f"{self.service_url}/collections/{self._parse_id(coll)}"
-        headers = {"Content-Type": MimeType.JSON.get_string()}
-        return self.client.get_json(
-            url=url, request_type=RequestType.PUT, post_values=coll, headers=headers, use_session=True
-        )
+        pass
 
     def delete_collection(self, collection: CollectionType) -> Json:
         """Delete existing collection by its id
@@ -144,8 +131,7 @@ class SentinelHubBYOC(SentinelHubService):
 
         :param collection: a ByocCollection, dict or collection id string
         """
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}"
-        return self.client.get_json(url=url, request_type=RequestType.DELETE, use_session=True)
+        pass
 
     def copy_tiles(self, from_collection: CollectionType, to_collection: CollectionType) -> Json:
         """Copy tiles from one collection to another
@@ -155,11 +141,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param from_collection: a ByocCollection, dict or collection id string
         :param to_collection: a ByocCollection, dict or collection id string
         """
-        url = (
-            f"{self.service_url}/collections/{self._parse_id(from_collection)}"
-            f"/copyTiles?toCollection={self._parse_id(to_collection)}"
-        )
-        return self.client.get_json(url=url, request_type=RequestType.POST, use_session=True)
+        pass
 
     def iter_tiles(
         self, collection: CollectionType, sort: Optional[str] = None, path: Optional[str] = None, **kwargs: Any
@@ -174,13 +156,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param kwargs: Any other request parameters
         :return: An iterator over payloads of tiles from the collection
         """
-        collection_id = self._parse_id(collection)
-        return SentinelHubFeatureIterator(
-            client=self.client,
-            url=f"{self.service_url}/collections/{collection_id}/tiles",
-            params={"sort": sort, "path": path, **kwargs},
-            exception_message=f"Failed to obtain information about tiles in BYOC collection {collection_id}",
-        )
+        pass
 
     def get_tile(self, collection: CollectionType, tile: TileType) -> JsonDict:
         """Get a tile of collection
@@ -191,8 +167,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param tile: a ByocTile, dict or tile id string
         :return: dictionary of the tile
         """
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}/tiles/{self._parse_id(tile)}"
-        return self.client.get_json_dict(url=url, use_session=True, extract_key="data")
+        pass
 
     def create_tile(self, collection: CollectionType, tile: TileType) -> JsonDict:
         """Create tile within collection
@@ -203,9 +178,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param tile: a ByocTile or dict
         :return: dictionary of the tile
         """
-        _tile = self._to_dict(tile)
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}/tiles"
-        return self.client.get_json_dict(url=url, post_values=_tile, use_session=True, extract_key="data")
+        pass
 
     def update_tile(self, collection: CollectionType, tile: TileType) -> Json:
         """Update a tile within collection
@@ -216,21 +189,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param collection: a ByocCollection, dict or collection id string
         :param tile: a ByocTile or dict
         """
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}/tiles/{self._parse_id(tile)}"
-        headers = {"Content-Type": MimeType.JSON.get_string()}
-
-        _tile = self._to_dict(tile)
-        updates = remove_undefined(
-            {
-                "path": _tile["path"],
-                "coverGeometry": _tile.get("coverGeometry"),
-                "sensingTime": _tile.get("sensingTime"),
-            }
-        )
-
-        return self.client.get_json(
-            url=url, request_type=RequestType.PUT, post_values=updates, headers=headers, use_session=True
-        )
+        pass
 
     def delete_tile(self, collection: CollectionType, tile: TileType) -> Json:
         """Delete a tile from collection
@@ -241,8 +200,7 @@ class SentinelHubBYOC(SentinelHubService):
         :param collection: a ByocCollection, dict or collection id string
         :param tile: a ByocTile, dict or tile id string
         """
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}/tiles/{self._parse_id(tile)}"
-        return self.client.get_json(url=url, request_type=RequestType.DELETE, use_session=True)
+        pass
 
     def reingest_tile(self, collection: CollectionType, tile: TileType) -> Json:
         """Re-ingests a tile into a collection
@@ -253,26 +211,13 @@ class SentinelHubBYOC(SentinelHubService):
         :param collection: a ByocCollection, dict or collection id string
         :param tile: a ByocTile, dict or tile id string
         """
-        url = f"{self.service_url}/collections/{self._parse_id(collection)}/tiles/{self._parse_id(tile)}/reingest"
-        return self.client.get_json(url=url, request_type=RequestType.POST, use_session=True)
+        pass
 
     @staticmethod
     def _parse_id(data: object) -> Optional[str]:
-        if isinstance(data, (ByocCollection, DataCollection)):
-            return data.collection_id
-        if isinstance(data, ByocTile):
-            return data.tile_id
-        if isinstance(data, dict):
-            return data["id"]
-        if isinstance(data, str):
-            return data
-        raise ValueError(f"Expected a BYOC/Data dataclass, dictionary or a string, got {data}.")
+        pass
 
     @staticmethod
     def _to_dict(data: object) -> dict:
         """Constructs dict from an object (either dataclass or dict)"""
-        if isinstance(data, (ByocCollection, ByocTile, ByocCollectionAdditionalData, ByocCollectionBand)):
-            return data.to_dict()  # type: ignore[union-attr] # to_dict method comes from decorators and is undetectable
-        if isinstance(data, dict):
-            return data
-        raise ValueError(f"Expected either a data class (e.g., ByocCollection and similar) or a dict, got {data}.")
+        pass

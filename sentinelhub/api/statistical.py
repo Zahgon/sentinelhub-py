@@ -58,7 +58,7 @@ class SentinelHubStatistical(SentinelHubBaseApiRequest):
 
     @property
     def mime_type(self) -> MimeType:
-        return MimeType.JSON
+        pass
 
     @staticmethod
     def body(
@@ -78,16 +78,7 @@ class SentinelHubStatistical(SentinelHubBaseApiRequest):
             by it.
         :returns: Request payload dictionary
         """
-        request_body = {
-            "input": {"bounds": request_bounds, "data": list(request_data)},
-            "aggregation": aggregation,
-            "calculations": calculations,
-        }
-
-        if other_args:
-            _update_other_args(request_body, other_args)
-
-        return remove_undefined(request_body)
+        pass
 
     @staticmethod
     def aggregation(
@@ -111,20 +102,4 @@ class SentinelHubStatistical(SentinelHubBaseApiRequest):
             by it.
         :returns: Aggregation payload dictionary
         """
-        start_time, end_time = serialize_time(parse_time_interval(time_interval, allow_undefined=True), use_tz=True)
-
-        payload: JsonDict = {
-            "evalscript": evalscript,
-            "timeRange": {"from": start_time, "to": end_time},
-            "aggregationInterval": {"of": aggregation_interval},
-        }
-
-        if size:
-            payload["width"], payload["height"] = size
-        if resolution:
-            payload["resx"], payload["resy"] = resolution
-
-        if other_args:
-            _update_other_args(payload, other_args)
-
-        return payload
+        pass

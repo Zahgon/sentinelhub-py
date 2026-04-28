@@ -42,6 +42,7 @@ class DataRequest(metaclass=ABCMeta):
     @abstractmethod
     def create_request(self) -> None:
         """An abstract method for logic of creating download requests"""
+        pass
 
     def get_download_list(self) -> list[DownloadRequest]:
         """
@@ -49,7 +50,7 @@ class DataRequest(metaclass=ABCMeta):
 
         :return: List of data to be downloaded
         """
-        return self.download_list
+        pass
 
     def get_filename_list(self) -> list[str]:
         """Returns a list of file names (or paths relative to `data_folder`) where the requested data will be saved
@@ -57,7 +58,7 @@ class DataRequest(metaclass=ABCMeta):
 
         :return: A list of filenames
         """
-        return [request.get_relative_paths()[1] for request in self.download_list]
+        pass
 
     def get_url_list(self) -> list[str | None]:
         """
@@ -65,16 +66,14 @@ class DataRequest(metaclass=ABCMeta):
 
         :return: List of URLs from where data will be downloaded.
         """
-        return [request.url for request in self.download_list]
+        pass
 
     def is_valid_request(self) -> bool:
         """Checks if initialized class instance successfully prepared a list of items to download
 
         :return: `True` if request is valid and `False` otherwise
         """
-        return isinstance(self.download_list, list) and all(
-            isinstance(request, DownloadRequest) for request in self.download_list
-        )
+        pass
 
     def get_data(
         self,
@@ -108,15 +107,7 @@ class DataRequest(metaclass=ABCMeta):
         :return: requested images as numpy arrays, where each array corresponds to a single acquisition and has
             shape ``[height, width, channels]``.
         """
-        self._preprocess_request(save_data, True)
-        return self._execute_data_download(
-            data_filter,
-            redownload,
-            max_threads,
-            raise_download_errors,
-            decode_data=decode_data,
-            show_progress=show_progress,
-        )
+        pass
 
     def save_data(
         self,
@@ -138,10 +129,7 @@ class DataRequest(metaclass=ABCMeta):
             ``DownloadFailedException``. If `False` failed downloads will only raise warnings.
         :param show_progress: Whether a progress bar should be displayed while downloading.
         """
-        self._preprocess_request(True, False)
-        self._execute_data_download(
-            data_filter, redownload, max_threads, raise_download_errors, show_progress=show_progress
-        )
+        pass
 
     def _execute_data_download(
         self,
@@ -166,31 +154,7 @@ class DataRequest(metaclass=ABCMeta):
         :param show_progress: Whether a progress bar should be displayed while downloading.
         :return: List of data obtained from download
         """
-        is_repeating_filter = False
-        if data_filter is None:
-            filtered_download_list = self.download_list
-        elif isinstance(data_filter, (list, tuple)):
-            try:
-                filtered_download_list = [self.download_list[index] for index in data_filter]
-            except IndexError as exception:
-                raise IndexError("Indices of data_filter are out of range") from exception
-
-            filtered_download_list, mapping_list = self._filter_repeating_items(filtered_download_list)
-            is_repeating_filter = len(filtered_download_list) < len(mapping_list)
-        else:
-            raise ValueError("data_filter parameter must be a list of indices")
-
-        client = self.download_client_class(
-            redownload=redownload, raise_download_errors=raise_download_errors, config=self.config
-        )
-        data_list = client.download(
-            filtered_download_list, max_threads=max_threads, decode_data=decode_data, show_progress=show_progress
-        )
-
-        if is_repeating_filter:
-            data_list = [copy.deepcopy(data_list[index]) for index in mapping_list]
-
-        return data_list
+        pass
 
     @staticmethod
     def _filter_repeating_items(download_list: list[DownloadRequest]) -> tuple[list[DownloadRequest], list[int]]:
@@ -201,15 +165,7 @@ class DataRequest(metaclass=ABCMeta):
         :param download_list: List of download requests
         :return: reduced download list with unique requests and mapping list
         """
-        unique_requests_map = {}
-        mapping_list = []
-        unique_download_list: list[DownloadRequest] = []
-        for download_request in download_list:
-            if download_request not in unique_requests_map:
-                unique_requests_map[download_request] = len(unique_download_list)
-                unique_download_list.append(download_request)
-            mapping_list.append(unique_requests_map[download_request])
-        return unique_download_list, mapping_list
+        pass
 
     def _preprocess_request(self, save_data: bool, return_data: bool) -> None:
         """Prepares requests for download and creates empty folders
@@ -217,23 +173,7 @@ class DataRequest(metaclass=ABCMeta):
         :param save_data: Save data
         :param return_data: Return data
         """
-        if not self.is_valid_request():
-            raise ValueError("Cannot obtain data because request is invalid")
-
-        if save_data:
-            if self.data_folder is None:
-                raise ValueError(
-                    "Request parameter `data_folder` is not specified. "
-                    "In order to save data please set `data_folder` to location on your disk."
-                )
-
-            for folder in self.folder_list:
-                os.makedirs(os.path.join(self.data_folder, folder), exist_ok=True)
-
-        for download_request in self.download_list:
-            download_request.save_response = save_data
-            download_request.return_data = return_data
-            download_request.data_folder = self.data_folder
+        pass
 
 
 class FeatureIterator(Generic[_T], metaclass=ABCMeta):
@@ -286,3 +226,4 @@ class FeatureIterator(Generic[_T], metaclass=ABCMeta):
     @abstractmethod
     def _fetch_features(self) -> Iterable[_T]:
         """Collects and returns more features from the service"""
+        pass

@@ -53,7 +53,7 @@ class GeopediaRequest(DataRequest):
 
     @abstractmethod
     def create_request(self) -> None:
-        raise NotImplementedError
+        pass
 
 
 class GeopediaWmsRequest(GeopediaRequest):
@@ -95,8 +95,7 @@ class GeopediaWmsRequest(GeopediaRequest):
         Create a list of DownloadRequests for all Sentinel-2 acquisitions within request's time interval and
         acceptable cloud coverage.
         """
-        gpd_service = GeopediaWmsService(config=self.config)
-        self.download_list = gpd_service.get_request(self)  # type: ignore[arg-type]
+        pass
 
 
 class GeopediaImageRequest(GeopediaRequest):
@@ -143,12 +142,7 @@ class GeopediaImageRequest(GeopediaRequest):
             (i.e. instance of ``GeopediaFeatureIterator`` class). If the iterator is not reset you don't have to
             repeat a service call but tiles and dates will stay the same.
         """
-        if reset_gpd_iterator:
-            self.gpd_iterator = None
-
-        gpd_service = GeopediaImageService(config=self.config)
-        self.download_list = gpd_service.get_request(self)
-        self.gpd_iterator = gpd_service.get_gpd_iterator()
+        pass
 
     def get_items(self) -> GeopediaFeatureIterator | None:
         """Returns iterator over info about data used for this request
@@ -156,4 +150,4 @@ class GeopediaImageRequest(GeopediaRequest):
         :return: Iterator of dictionaries containing info about data used in
                  this request.
         """
-        return self.gpd_iterator
+        pass

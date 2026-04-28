@@ -71,20 +71,13 @@ def deprecated_function(
 
     Has to use paranthesis even when no custom parameters are used, e.g. `@deprecated_function()`.
     """
+    def deco(func):
+        def wrapper(*args, **kwargs):
+            pass
 
-    def deco(func: Callable) -> Callable:
-        message = f"Function `{func.__name__}` has been deprecated."
-        if message_suffix:
-            message += " " + message_suffix
+        pass
 
-        @functools.wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            warnings.warn(message, category=category, stacklevel=2)
-            return func(*args, **kwargs)
-
-        return wrapper
-
-    return deco
+    pass
 
 
 # THIS SHOULD BE REMOVED IN THE FUTURE, after rest of libraries transition away.
@@ -95,19 +88,9 @@ def deprecated_class(
 
     Has to use paranthesis even when no custom parameters are used, e.g. `@deprecated_class()`.
     """
+    def deco(cls):
+        def warn_and_init(self, *args, **kwargs):
+            pass
+        pass
 
-    def deco(class_object: type) -> type:
-        message = f"Class `{class_object.__name__}` has been deprecated."
-        if message_suffix:
-            message += " " + message_suffix
-
-        old_init = class_object.__init__  # type: ignore[misc]
-
-        def warn_and_init(self: Any, *args: Any, **kwargs: Any) -> None:
-            warnings.warn(message, category=category, stacklevel=2)
-            old_init(self, *args, **kwargs)
-
-        class_object.__init__ = warn_and_init  # type: ignore[misc]
-        return class_object
-
-    return deco
+    pass

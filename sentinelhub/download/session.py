@@ -78,11 +78,7 @@ class SentinelHubSession:
 
         :param token: A dictionary containing token object.
         """
-        for key in ["access_token", "expires_at"]:
-            if key not in token:
-                raise ValueError(f"Given token should be a dictionary containing a key `{key}`")
-
-        return cls(_token=token, refresh_before_expiry=None)
+        pass
 
     @property
     def token(self) -> JsonDict:
@@ -90,24 +86,11 @@ class SentinelHubSession:
 
         :return: A token in a form of dictionary of parameters
         """
-        remaining_token_time = self._token["expires_at"] - time.time()
-        if self.refresh_before_expiry is None:
-            if remaining_token_time <= 0:
-                warnings.warn("The Sentinel Hub session token seems to be expired.", category=SHUserWarning)
-            return self._token
-
-        if remaining_token_time <= self.refresh_before_expiry:
-            self._token = self._collect_new_token()
-
-        return self._token
+        pass
 
     def info(self) -> JsonDict:
         """Decode token to get token info"""
-
-        token = self.token["access_token"].split(".")[1]
-        padded = token + "=" * (len(token) % 4)
-        decoded_string = base64.b64decode(padded).decode()
-        return json.loads(decoded_string)
+        pass
 
     @property
     def session_headers(self) -> dict[str, str]:
@@ -115,7 +98,7 @@ class SentinelHubSession:
 
         :return: A dictionary with authorization headers.
         """
-        return {"Authorization": f'Bearer {self.token["access_token"]}'}
+        pass
 
     def _collect_new_token(self) -> JsonDict:
         """Creates a download request and fetches a token from the service.
@@ -123,26 +106,13 @@ class SentinelHubSession:
         Note that the `DownloadRequest` object is created only because retry decorators of `_fetch_token` method
         require it.
         """
-        request = DownloadRequest(url=f"{self.config.sh_token_url}")
-        return self._fetch_token(request)
+        pass
 
     @retry_temporary_errors
     @fail_user_errors
     def _fetch_token(self, request: DownloadRequest) -> JsonDict:
         """Collects a new token from Sentinel Hub service"""
-        oauth_client = BackendApplicationClient(client_id=self.config.sh_client_id)
-
-        LOGGER.debug("Creating a new authentication session with Sentinel Hub service")
-        with OAuth2Session(client=oauth_client) as oauth_session:
-            oauth_session.register_compliance_hook("access_token_response", self._compliance_hook)
-
-            return oauth_session.fetch_token(
-                token_url=request.url,
-                client_id=self.config.sh_client_id,
-                client_secret=self.config.sh_client_secret,
-                headers={**self.DEFAULT_HEADERS, **SHConstants.HEADERS},
-                include_client_id=True,
-            )
+        pass
 
     @staticmethod
     def _compliance_hook(response: Response) -> Response:
@@ -157,18 +127,7 @@ class SentinelHubSession:
         But in case of 4xx errors where response contains an error message this method intentionally doesn't raise
         an error so that `oauthlib` can later raise a more descriptive error.
         """
-        if response.status_code >= requests.status_codes.codes.INTERNAL_SERVER_ERROR:
-            response.raise_for_status()
-
-        try:
-            token_dict = response.json()
-            if "error" in token_dict:
-                return response
-        except JSONDecodeError:
-            pass
-
-        response.raise_for_status()
-        return response
+        pass
 
 
 _DEFAULT_SESSION_MEMORY_NAME = "sh-session-token"
@@ -217,31 +176,16 @@ class SessionSharingThread(Thread):
 
         After starting the thread it also waits for the token to be shared. This way no other process would try to
         access the memory before it even exists."""
-        super().start()
-        self._is_memory_shared_event.wait()
+        pass
 
     def run(self) -> None:
         """A running thread is running an infinite loop of sharing a token and waiting for token to expire. The loop
         ends only when the thread is stopped."""
-        self._stop_event.clear()
-
-        while not self._stop_event.is_set():
-            token = self.session.token
-            self._share_token(token)
-
-            sleep_until_refresh_time = token["expires_at"] - time.time() - self._refresh_time
-            if sleep_until_refresh_time > 0:
-                self._stop_event.wait(timeout=sleep_until_refresh_time)
+        pass
 
     def _share_token(self, token: JsonDict) -> None:
         """A token is encoded into bytes and written into a shared memory block."""
-        encoded_token = json.dumps(token).encode()
-        memory = self._get_shared_memory(encoded_token)
-
-        try:
-            memory.buf[:] = encoded_token + _NULL_MEMORY_VALUE * (memory.size - len(encoded_token))
-        finally:
-            memory.close()
+        pass
 
     def _get_shared_memory(self, encoded_token: bytes) -> SharedMemory:
         """Provides a shared memory object.
@@ -250,27 +194,7 @@ class SessionSharingThread(Thread):
         Because the memory can be persistent and requires low-level knowledge of `multiprocessing.shared_memory` to
         close it manually this method will close it automatically and inform users about the problem.
         """
-        if self._is_memory_shared_event.is_set():
-            return SharedMemory(name=self.memory_name)
-
-        try:
-            memory = self._create_shared_memory(encoded_token)
-        except FileExistsError:
-            warnings.warn(
-                f"A shared memory with a name `{self.memory_name}` already exists. It will be removed and allocated"
-                f" anew. Please make sure that every {self.__class__.__name__} instance is joined at the end. If"
-                " you are using multiple threads then specify different 'memory_name' parameter for each of them.",
-                category=SHUserWarning,
-            )
-
-            memory = SharedMemory(name=self.memory_name)
-            memory.unlink()
-            memory.close()
-
-            memory = self._create_shared_memory(encoded_token)
-
-        self._is_memory_shared_event.set()
-        return memory
+        pass
 
     def _create_shared_memory(self, encoded_token: bytes) -> SharedMemory:
         """Create a new shared memory space.
@@ -278,29 +202,14 @@ class SessionSharingThread(Thread):
         Note that the `SharedMemory` object allocates extra `self._EXTRA_MEMORY_BYTES` bytes of memory because the
         length of encoded token can vary a bit.
         """
-        return SharedMemory(
-            create=True,
-            size=len(encoded_token) + self._EXTRA_MEMORY_BYTES,
-            name=self.memory_name,
-        )
+        pass
 
     def join(self, timeout: float | None = None) -> None:
         """The method stops the thread that would otherwise run indefinitely and joins it with the main thread.
 
         :param timeout: Parameter that is propagated to `threading.Thread.join` method.
         """
-        self._stop_event.set()
-        super().join(timeout=timeout)
-
-        if self._is_memory_shared_event.is_set():
-            try:
-                memory = SharedMemory(name=self.memory_name)
-                memory.unlink()
-                memory.close()
-            except FileNotFoundError:
-                pass
-
-            self._is_memory_shared_event.clear()
+        pass
 
 
 class SessionSharing:
@@ -340,18 +249,4 @@ def collect_shared_session(memory_name: str = _DEFAULT_SESSION_MEMORY_NAME) -> S
         match the one used in `SessionSharingThread`.
     :return: An instance of `SentinelHubSession` that contains the shared token but is not self-refreshing.
     """
-    try:
-        memory = SharedMemory(name=memory_name)
-    except FileNotFoundError as exception:
-        raise FileNotFoundError(
-            f"Couldn't obtain a shared session because a shared memory `{memory_name}` doesn't exist. Make sure that"
-            " you are running session sharing when calling this function"
-        ) from exception
-
-    try:
-        encoded_token = memory.buf.tobytes().rstrip(_NULL_MEMORY_VALUE)
-    finally:
-        memory.close()
-
-    token: JsonDict = json.loads(encoded_token)
-    return SentinelHubSession.from_token(token)
+    pass

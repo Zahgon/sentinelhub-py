@@ -44,48 +44,14 @@ class AwsBatchStatisticalResults(DataRequest):
     ) -> BatchStatisticalRequest:
         """In case a batch request is not defined with an instance of `BatchStatisticalRequest` it will make sure that
         such an instance is created."""
-        if isinstance(batch_request, BatchStatisticalRequest):
-            return batch_request
-
-        if isinstance(batch_request, dict):
-            return BatchStatisticalRequest.from_dict(batch_request)
-
-        batch_client = SentinelHubBatchStatistical(config=config)
-        return batch_client.get_request(batch_request)
+        pass
 
     def create_request(self) -> None:
         """Creates a list of download requests."""
-        base_s3_path = self.batch_request.request["output"]["s3"]["url"].rstrip("/")
-        s3_path = f"{base_s3_path}/{self.batch_request.request_id}/"
-
-        filenames = self._get_filenames(s3_path)
-
-        self.download_list = [
-            DownloadRequest(
-                url=f"{s3_path}{filename}", data_folder=self.data_folder, data_type=MimeType.JSON, filename=filename
-            )
-            for filename in filenames
-        ]
+        pass
 
     def _get_filenames(self, s3_path: str) -> List[str]:
         """Creates a list of JSON filenames from given feature ids or from given S3 path if feature ids are not
         provided. In case if it has to collect them from S3 path it makes sure not to collect any data from any
         subfolder in the path."""
-        if self.feature_ids is not None:
-            return [f"{feature_id}.json" for feature_id in self.feature_ids]
-
-        filenames: List[str] = []
-
-        s3_client = AwsDownloadClient.get_s3_client(self.config)
-        _, _, bucket_name, url_key = s3_path.split("/", 3)
-
-        paginator = s3_client.get_paginator("list_objects")
-        for page in paginator.paginate(Bucket=bucket_name, Prefix=url_key):
-            for item in page["Contents"]:
-                key_path = item["Key"]
-                key_name = key_path.rsplit("/", 1)[1]
-
-                if key_name.endswith(".json") and key_path == f"{url_key}{key_name}":
-                    filenames.append(key_name)
-
-        return filenames
+        pass

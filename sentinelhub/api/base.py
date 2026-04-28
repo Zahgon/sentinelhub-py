@@ -44,6 +44,7 @@ class SentinelHubService(metaclass=ABCMeta):
     @abstractmethod
     def _get_service_url(base_url: str) -> str:
         """Provides the URL to a specific service"""
+        pass
 
 
 class SentinelHubFeatureIterator(FeatureIterator[JsonDict]):
@@ -62,19 +63,7 @@ class SentinelHubFeatureIterator(FeatureIterator[JsonDict]):
 
     def _fetch_features(self) -> Iterable[JsonDict]:
         """Collect more results from the service"""
-        params = remove_undefined({**self.params, "viewtoken": self.next})
-        url = f"{self.url}?{urlencode(params)}"
-
-        json_response = self.client.get_json_dict(url, use_session=True)
-
-        new_features = json_response.get("data")
-        if new_features is None:
-            raise MissingDataInRequestException(self.exception_message)
-
-        self.next = json_response.get("links", {}).get("nextToken")
-        self.finished = self.next is None or not new_features
-
-        return new_features
+        pass
 
 
 class _AdditionalData(Protocol):
@@ -99,12 +88,4 @@ class BaseCollection:
 
     def to_data_collection(self) -> DataCollection:
         """Returns a DataCollection enum for this collection"""
-        if self.collection_id is None:
-            raise ValueError("This collection is missing a collection id")
-
-        if self.additional_data and self.additional_data.bands:
-            band_names = tuple(self.additional_data.bands)
-        else:
-            band_names = None
-
-        return DataCollection.define_byoc(collection_id=self.collection_id, bands=band_names)
+        pass

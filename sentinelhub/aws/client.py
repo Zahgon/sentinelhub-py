@@ -47,59 +47,16 @@ class AwsDownloadClient(DownloadClient):
     @fail_missing_file
     def _execute_download(self, request: DownloadRequest) -> DownloadResponse:
         """Executes a download procedure"""
-        if not self.is_s3_request(request):
-            return super()._execute_download(request)
-
-        s3_client = self.get_s3_client(self.config)
-
-        response_content = self._do_download(request, s3_client)
-
-        LOGGER.debug("Successful download from %s", request.url)
-        return DownloadResponse(request=request, content=response_content)
+        pass
 
     @classmethod
     def get_s3_client(cls, config: SHConfig) -> Any:
         """Provides a s3 client object"""
-        warnings.filterwarnings("ignore", category=ResourceWarning, message="unclosed.*<ssl.SSLSocket.*>")
-        try:
-            s3_client = Session().client(
-                "s3",
-                aws_access_key_id=config.aws_access_key_id or None,
-                aws_secret_access_key=config.aws_secret_access_key or None,
-                aws_session_token=config.aws_session_token or None,
-            )
-            cls.GLOBAL_S3_CLIENTS[config.aws_access_key_id] = s3_client
-
-        except KeyError as exception:  # Sometimes creation of client fails, and we use the global client if it exists
-            global_client = cls.GLOBAL_S3_CLIENTS.get(config.aws_access_key_id)
-            if global_client is None:
-                raise ValueError("Failed to create a client for download from AWS") from exception
-            s3_client = global_client
-
-        return s3_client
+        pass
 
     def _do_download(self, request: DownloadRequest, s3_client: Any) -> bytes:
         """Does the download from s3"""
-        if request.url is None:
-            raise ValueError(f"Faulty request {request}, no URL specified.")
-        _, _, bucket_name, url_key = request.url.split("/", 3)
-
-        try:
-            response = s3_client.get_object(Bucket=bucket_name, Key=url_key, **self.boto_params)
-
-            return response["Body"].read()
-        except NoCredentialsError as exception:
-            raise ValueError(
-                "The requested data is in Requester Pays AWS bucket. In order to download the data please set "
-                "your access key either in the AWS credentials file or in the sentinelhub config.toml file using "
-                "command line:\n"
-                "$ sentinelhub.config --aws_access_key_id <your AWS key> --aws_secret_access_key "
-                "<your AWS secret key>"
-            ) from exception
-        except s3_client.exceptions.NoSuchKey as exception:
-            raise AwsDownloadFailedException(f"File in location {request.url} is missing") from exception
-        except s3_client.exceptions.NoSuchBucket as exception:
-            raise ValueError(f"Aws bucket {bucket_name} does not exist") from exception
+        pass
 
     @staticmethod
     def is_s3_request(request: DownloadRequest) -> bool:
@@ -107,4 +64,4 @@ class AwsDownloadClient(DownloadClient):
 
         :return: `True` if url describes location at AWS s3 bucket and `False` otherwise
         """
-        return request.url is not None and request.url.startswith("s3://")
+        pass

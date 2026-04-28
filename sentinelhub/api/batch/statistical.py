@@ -38,7 +38,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
     @staticmethod
     def _get_service_url(base_url: str) -> str:
         """Provides URL to Batch Statistical API"""
-        return f"{base_url}/api/v1/statistics/batch"
+        pass
 
     def create(
         self,
@@ -55,19 +55,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
         `Batch Statistical API reference
         <https://docs.sentinel-hub.com/api/latest/reference/#operation/createNewBatchStatisticsRequest>`__
         """
-        payload = {
-            "input": {"features": input_features, "data": list(input_data)},
-            "aggregation": aggregation,
-            "calculations": calculations,
-            "output": output,
-            **kwargs,
-        }
-        payload = remove_undefined(payload)
-
-        url = self.service_url
-        request_info = self.client.get_json_dict(url, post_values=payload, use_session=True)
-
-        return BatchStatisticalRequest.from_dict(request_info)
+        pass
 
     def create_from_request(
         self,
@@ -85,15 +73,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
         :returns: A Batch Statistical request with the same calculations and aggregations but using geometries
             specified in the input GeoPackage.
         """
-
-        return self.create(
-            input_features=input_features,
-            input_data=statistical_request.payload["input"]["data"],
-            aggregation=statistical_request.payload["aggregation"],
-            calculations=statistical_request.payload["calculations"],
-            output=output,
-            **kwargs,
-        )
+        pass
 
     def get_request(self, batch_request: BatchStatisticalRequestType) -> "BatchStatisticalRequest":
         """Collects information about a single batch request
@@ -103,9 +83,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
 
         :return: Batch request info
         """
-        request_id = self._parse_request_id(batch_request)
-        request_info = self.client.get_json_dict(url=self._get_processing_url(request_id), use_session=True)
-        return BatchStatisticalRequest.from_dict(request_info)
+        pass
 
     def get_status(self, batch_request: BatchStatisticalRequestType) -> JsonDict:
         """Collects information about a status of a request
@@ -115,9 +93,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
 
         :return: Batch request status dictionary
         """
-        request_id = self._parse_request_id(batch_request)
-        endpoint_url = f"{self._get_processing_url(request_id)}/status"
-        return self.client.get_json_dict(url=endpoint_url, use_session=True)
+        pass
 
     def start_analysis(self, batch_request: BatchStatisticalRequestType) -> Json:
         """Starts analysis of a batch job request
@@ -128,7 +104,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
         :param batch_request: It could be a batch request object, a raw batch request payload or only a batch
             request ID.
         """
-        return self._call_job(batch_request, "analyse")
+        pass
 
     def start_job(self, batch_request: BatchStatisticalRequestType) -> Json:
         """Starts running a batch job
@@ -139,7 +115,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
         :param batch_request: It could be a batch request object, a raw batch request payload or only a batch
             request ID.
         """
-        return self._call_job(batch_request, "start")
+        pass
 
     @deprecated("The method `cancel_job` has been replaced with use `stop_job`.", category=SHDeprecationWarning)
     def cancel_job(self, batch_request: BatchStatisticalRequestType) -> Json:
@@ -151,7 +127,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
         :param batch_request: It could be a batch request object, a raw batch request payload or only a batch
             request ID.
         """
-        return self._call_job(batch_request, "cancel")
+        pass
 
     def stop_job(self, batch_request: BatchStatisticalRequestType) -> Json:
         """Stop a batch job
@@ -162,7 +138,7 @@ class SentinelHubBatchStatistical(BaseBatchClient["BatchStatisticalRequest"]):
         :param batch_request: It could be a batch request object, a raw batch request payload or only a batch
             request ID.
         """
-        return self._call_job(batch_request, "stop")
+        pass
 
 
 @dataclass_json(letter_case=LetterCase.CAMEL, undefined=Undefined.INCLUDE)

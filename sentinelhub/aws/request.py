@@ -53,13 +53,13 @@ class _BaseAwsDataRequest(DataRequest, Generic[T]):
 
     @abstractmethod
     def create_request(self) -> None:
-        raise NotImplementedError
+        pass
 
     def get_aws_service(self) -> T:
         """
         :return: initialized AWS service class
         """
-        return self.aws_service
+        pass
 
 
 @deprecated(
@@ -89,16 +89,7 @@ class AwsProductRequest(_BaseAwsDataRequest[AwsProduct]):
         super().__init__(**kwargs)
 
     def create_request(self) -> None:
-        product_class = SafeProduct if self.safe_format else AwsProduct
-        self.aws_service = product_class(
-            self.product_id,
-            tile_list=self.tile_list,
-            bands=self.bands,
-            metafiles=self.metafiles,
-            config=self.config,
-        )
-
-        self.download_list, self.folder_list = self.aws_service.get_requests()
+        pass
 
 
 @deprecated(
@@ -142,21 +133,7 @@ class AwsTileRequest(_BaseAwsDataRequest[AwsTile]):
         super().__init__(**kwargs)
 
     def create_request(self) -> None:
-        if self.tile is None or self.time is None:
-            raise ValueError("The parameters `tile` and `time` must be set.")
-
-        tile_class = SafeTile if self.safe_format else AwsTile
-        self.aws_service = tile_class(
-            self.tile,
-            self.time,
-            self.aws_index,
-            bands=self.bands,
-            metafiles=self.metafiles,
-            data_collection=self.data_collection,
-            config=self.config,
-        )
-
-        self.download_list, self.folder_list = self.aws_service.get_requests()
+        pass
 
 
 def get_safe_format(
@@ -177,22 +154,7 @@ def get_safe_format(
     :param data_collection: In case of tile request the collection of satellite data has to be specified.
     :return: Nested dictionaries representing .SAFE structure.
     """
-    entire_product = entire_product and product_id is None
-    if tile is not None:
-        safe_tile = SafeTile(tile_name=tile[0], time=tile[1], bands=bands, data_collection=data_collection)
-        if not entire_product:
-            return safe_tile.get_safe_struct()
-        product_id = safe_tile.get_product_id()
-    if product_id is None:
-        raise ValueError("Either product_id or tile must be specified")
-    if entire_product:
-        if tile is None:
-            raise ValueError("The tile parameter must be set.")
-        safe_product = SafeProduct(product_id, tile_list=[tile[0]], bands=bands)
-    else:
-        safe_product = SafeProduct(product_id, bands=bands)
-
-    return safe_product.get_safe_struct()
+    pass
 
 
 def download_safe_format(
@@ -218,33 +180,4 @@ def download_safe_format(
     :param data_collection: In case of tile request the collection of satellite data has to be specified.
     :return: Nested dictionaries representing .SAFE structure.
     """
-    safe_request: Union[None, AwsTileRequest, AwsProductRequest] = None
-    entire_product = entire_product and product_id is None
-    if tile is not None:
-        if data_collection is None:
-            raise ValueError("The data_collection parameter must be set.")
-        safe_request = AwsTileRequest(
-            tile=tile[0],
-            time=tile[1],
-            data_folder=folder,
-            bands=bands,
-            safe_format=True,
-            data_collection=data_collection,
-        )
-        if entire_product:
-            safe_tile = safe_request.get_aws_service()
-            product_id = safe_tile.get_product_id()
-    if product_id is not None:
-        if entire_product:
-            if tile is None:
-                raise ValueError("The tile parameter must be set.")
-            safe_request = AwsProductRequest(
-                product_id, tile_list=[tile[0]], data_folder=folder, bands=bands, safe_format=True
-            )
-        else:
-            safe_request = AwsProductRequest(product_id, data_folder=folder, bands=bands, safe_format=True)
-
-    if safe_request is None:
-        raise ValueError("Either 'product_id' or 'tile' has to be defined")
-
-    safe_request.save_data(redownload=redownload)
+    pass

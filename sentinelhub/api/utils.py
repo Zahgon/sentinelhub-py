@@ -31,28 +31,19 @@ geometry_config = dataclass_config(
 
 def enum_config(enum_class: Type[Enum]) -> Dict[str, dict]:
     """Given an Enum class it provide an object for serialization/deserialization"""
-    return dataclass_config(
-        encoder=lambda enum_item: enum_item.value,
-        decoder=lambda item: enum_class(item) if item else None,
-        exclude=lambda item: item is None,
-        letter_case=LetterCase.CAMEL,
-    )
+    pass
 
 
 def _update_other_args(dict1: Dict[str, Any], dict2: Dict[str, Any]) -> None:
     """Function for a recursive update of `dict1` with `dict2`. The function loops over the keys in `dict2` and
     only the non-dict like values are assigned to the specified keys.
     """
-    for key, value in dict2.items():
-        if isinstance(value, dict) and key in dict1:
-            _update_other_args(dict1[key], value)
-        else:
-            dict1[key] = value
+    pass
 
 
 def remove_undefined(payload: dict) -> dict:
     """Takes a dictionary and removes keys without value"""
-    return {name: value for name, value in payload.items() if value is not None}
+    pass
 
 
 class AccessSpecification(TypedDict):
@@ -83,14 +74,4 @@ def s3_specification(
         that the request is submitted to is assumed.
     :return: A dictionary of S3 specifications used by the Batch Statistical API
     """
-    if (iam_role_arn is None) == (access_key is None or secret_access_key is None):
-        raise ValueError("Either specify `iam_role_arn` or both `access_key` and `secret_access_key`.")
-    s3_access = {
-        "url": url,
-        "accessKey": access_key,
-        "secretAccessKey": secret_access_key,
-        "iamRoleARN": iam_role_arn,
-        "region": region,
-    }
-
-    return {"s3": remove_undefined(s3_access)}
+    pass

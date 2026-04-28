@@ -51,7 +51,7 @@ class CustomUrlParam(Enum):
         :param value: The string representation of the enum constant
         :return: `True` if there exists a constant with a string value `value`, `False` otherwise
         """
-        return any(value.lower() == item.value.lower() for item in cls)
+        pass
 
     @staticmethod
     def get_string(param: Enum) -> str:
@@ -60,7 +60,7 @@ class CustomUrlParam(Enum):
         :param param: CustomUrlParam enum constant
         :return: String describing the file format
         """
-        return param.value
+        pass
 
 
 class OgcRequest(DataRequest):
@@ -140,12 +140,7 @@ class OgcRequest(DataRequest):
 
         Throws ValueError if the provided parameter is not a valid parameter.
         """
-        if self.custom_url_params is None:
-            return
-
-        for param in self.custom_url_params:
-            if param not in CustomUrlParam:
-                raise ValueError(f"Parameter {param} is not a valid custom url parameter. Please check and fix.")
+        pass
 
     def create_request(self, reset_wfs_iterator: bool = False) -> None:
         """Set download requests
@@ -157,12 +152,7 @@ class OgcRequest(DataRequest):
             (i.e. instance of ``WebFeatureService`` class). If the iterator is not reset you don't have to repeat a
             service call but tiles and dates will stay the same.
         """
-        if reset_wfs_iterator:
-            self.wfs_iterator = None
-
-        ogc_service = OgcImageService(config=self.config)
-        self.download_list = ogc_service.get_request(self)
-        self.wfs_iterator = ogc_service.get_wfs_iterator()
+        pass
 
     def get_dates(self) -> list[datetime.datetime | None]:
         """Get list of dates
@@ -175,7 +165,7 @@ class OgcRequest(DataRequest):
         :return: list of all available Sentinel-2 acquisition times within request's time interval and
             acceptable cloud coverage.
         """
-        return OgcImageService(config=self.config).get_dates(self)
+        pass
 
     def get_tiles(self) -> WebFeatureService | None:
         """Returns iterator over info about all satellite tiles used for the OgcRequest
@@ -183,7 +173,7 @@ class OgcRequest(DataRequest):
         :return: Iterator of dictionaries containing info about all satellite tiles used in the request. In case of
             `DataCollection.DEM` it returns None.
         """
-        return self.wfs_iterator
+        pass
 
 
 class WmsRequest(OgcRequest):
@@ -327,14 +317,7 @@ class OgcImageService:
                         product.
         :return: list of DownloadRequests
         """
-        size_x, size_y = self.get_image_dimensions(request)
-        return [
-            DownloadRequest(
-                url=self.get_url(request=request, date=date, size_x=size_x, size_y=size_y),
-                data_type=request.image_format,
-            )
-            for date in self.get_dates(request)
-        ]
+        pass
 
     def get_url(
         self,
@@ -352,18 +335,7 @@ class OgcImageService:
         :param size_y: vertical image dimension
         :return: url to Sentinel Hub's OGC service for this product.
         """
-        url = self.get_base_url(request)
-        authority = request.theme if hasattr(request, "theme") else self.config.instance_id
-
-        params = self._get_common_url_parameters(request)
-        if request.service_type in (ServiceType.WMS, ServiceType.WCS):
-            params = {**params, **self._get_wms_wcs_url_parameters(request, date)}
-        if request.service_type is ServiceType.WMS:
-            params = {**params, **self._get_wms_url_parameters(request, size_x, size_y)}  # type: ignore[arg-type]
-        elif request.service_type is ServiceType.WCS:
-            params = {**params, **self._get_wcs_url_parameters(request, size_x, size_y)}  # type: ignore[arg-type]
-
-        return f"{url}/{authority}?{urlencode(params)}"
+        pass
 
     def get_base_url(self, request: OgcRequest) -> str:
         """Creates base url string.
@@ -371,12 +343,7 @@ class OgcImageService:
         :param request: OGC-type request with specified bounding box, cloud coverage for specific product.
         :return: base string for url to Sentinel Hub's OGC service for this product.
         """
-        url = f"{self._base_url}/{request.service_type.value}"  # type: ignore[union-attr]
-
-        if hasattr(request, "data_collection") and request.data_collection.service_url:
-            url = url.replace(self.config.sh_base_url, request.data_collection.service_url)
-
-        return url
+        pass
 
     @staticmethod
     def _get_common_url_parameters(request: OgcRequest) -> dict[str, Any]:
@@ -385,40 +352,7 @@ class OgcImageService:
         :param request: OGC-type request with specified bounding box, cloud coverage for specific product.
         :return: dictionary with parameters
         """
-        params = {"SERVICE": request.service_type.value, "WARNINGS": False}  # type: ignore[union-attr]
-
-        if hasattr(request, "maxcc"):
-            params["MAXCC"] = 100.0 * request.maxcc
-
-        if hasattr(request, "custom_url_params") and request.custom_url_params is not None:
-            custom_params = request.custom_url_params.copy()
-
-            if CustomUrlParam.EVALSCRIPT in custom_params:
-                evalscript = custom_params[CustomUrlParam.EVALSCRIPT]
-                custom_params[CustomUrlParam.EVALSCRIPT] = b64encode(evalscript.encode()).decode()
-
-            if CustomUrlParam.GEOMETRY in custom_params:
-                geometry = custom_params[CustomUrlParam.GEOMETRY]
-                crs = request.bbox.crs
-
-                if isinstance(geometry, Geometry):
-                    if geometry.crs is not crs:
-                        raise ValueError("Geometry object in custom_url_params should have the same CRS as given BBox")
-                else:
-                    geometry = Geometry(geometry, crs)
-
-                if geometry.crs is CRS.WGS84:
-                    geometry = geometry.reverse()
-
-                custom_params[CustomUrlParam.GEOMETRY] = geometry.wkt
-
-            for resampling in (CustomUrlParam.DOWNSAMPLING, CustomUrlParam.UPSAMPLING):
-                if resampling in custom_params:
-                    custom_params[resampling] = ResamplingType(custom_params[resampling]).value
-
-            params.update({k.value: str(v) for k, v in custom_params.items()})
-
-        return params
+        pass
 
     @staticmethod
     def _get_wms_wcs_url_parameters(request: OgcRequest, date: datetime.datetime | None) -> dict[str, Any]:
@@ -428,26 +362,7 @@ class OgcImageService:
         :param date: acquisition date or None
         :return: dictionary with parameters
         """
-        bbox = request.bbox.reverse() if request.bbox.crs is CRS.WGS84 else request.bbox
-
-        params = {
-            "BBOX": ",".join(map(str, bbox)),
-            "FORMAT": MimeType.get_string(request.image_format),
-            "CRS": CRS.ogc_string(request.bbox.crs),
-        }
-
-        if date is not None:
-            start_date = (
-                date if request.time_difference < datetime.timedelta(seconds=0) else date - request.time_difference
-            )
-            end_date = (
-                date if request.time_difference < datetime.timedelta(seconds=0) else date + request.time_difference
-            )
-
-            start_date_str, end_date_str = serialize_time((start_date, end_date), use_tz=True)
-            params["TIME"] = f"{start_date_str}/{end_date_str}"
-
-        return params
+        pass
 
     @staticmethod
     def _get_wms_url_parameters(request: OgcRequest, size_x: int | str, size_y: int | str) -> dict[str, Any]:
@@ -458,7 +373,7 @@ class OgcImageService:
         :param size_y: vertical image dimension
         :return: dictionary with parameters
         """
-        return {"WIDTH": size_x, "HEIGHT": size_y, "LAYERS": request.layer, "REQUEST": "GetMap", "VERSION": "1.3.0"}
+        pass
 
     @staticmethod
     def _get_wcs_url_parameters(request: OgcRequest, size_x: int | str, size_y: int | str) -> dict[str, Any]:
@@ -469,7 +384,7 @@ class OgcImageService:
         :param size_y: vertical image dimension
         :return: dictionary with parameters
         """
-        return {"RESX": size_x, "RESY": size_y, "COVERAGE": request.layer, "REQUEST": "GetCoverage", "VERSION": "1.1.2"}
+        pass
 
     def get_dates(self, request: OgcRequest) -> list[datetime.datetime | None]:
         """Get available Sentinel-2 acquisitions at least time_difference apart
@@ -485,25 +400,7 @@ class OgcImageService:
         :param request: OGC-type request
         :return: List of dates of existing acquisitions for the given request
         """
-        if request.data_collection.is_timeless:
-            return [None]
-
-        if request.wfs_iterator is None:
-            self.wfs_iterator = WebFeatureService(
-                request.bbox,
-                request.time,
-                data_collection=request.data_collection,
-                maxcc=request.maxcc,
-                config=self.config,
-            )
-        else:
-            self.wfs_iterator = request.wfs_iterator
-
-        dates = self.wfs_iterator.get_dates()
-        dates = filter_times(dates, request.time_difference)  # type: ignore[type-var]
-
-        LOGGER.debug("Initializing requests for dates: %s", dates)
-        return dates  # type: ignore[return-value]
+        pass
 
     @staticmethod
     def get_image_dimensions(request: OgcRequest) -> tuple[int | str, int | str]:
@@ -512,20 +409,7 @@ class OgcImageService:
         :param request: OGC-type request
         :return: horizontal and vertical dimensions of requested image
         """
-        if request.service_type is ServiceType.WCS or (
-            isinstance(request.size_x, int) and isinstance(request.size_y, int)
-        ):
-            return request.size_x, request.size_y  # type: ignore[return-value]
-        if not isinstance(request.size_x, int) and not isinstance(request.size_y, int):
-            raise ValueError("At least one of parameters 'width' and 'height' must have an integer value")
-        missing_dimension = get_image_dimension(
-            request.bbox, width=request.size_x, height=request.size_y  # type: ignore[arg-type]
-        )
-        if request.size_x is None:
-            return missing_dimension, request.size_y  # type: ignore[return-value]
-        if request.size_y is None:
-            return request.size_x, missing_dimension
-        raise ValueError("Parameters 'width' and 'height' must be integers or None")
+        pass
 
     def get_wfs_iterator(self) -> WebFeatureService | None:
         """Returns iterator over info about all satellite tiles used for the request
@@ -533,4 +417,4 @@ class OgcImageService:
         :return: Iterator of dictionaries containing info about all satellite tiles used in the request. In case of
             `DataCollection.DEM` it returns `None`.
         """
-        return self.wfs_iterator
+        pass

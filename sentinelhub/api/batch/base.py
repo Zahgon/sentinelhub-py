@@ -51,27 +51,16 @@ class BaseBatchClient(SentinelHubService, Generic[BatchRequestType], metaclass=A
 
     def _call_job(self, batch_request: RequestSpec, endpoint_name: str) -> Json:
         """Makes a POST request to the service that triggers a processing job"""
-        request_id = self._parse_request_id(batch_request)
-        job_url = f"{self._get_processing_url(request_id)}/{endpoint_name}"
-        return self.client.get_json(url=job_url, request_type=RequestType.POST, use_session=True)
+        pass
 
     def _get_processing_url(self, request_id: Optional[str] = None) -> str:
         """Creates a URL for the batch statistical endpoint"""
-        url = self.service_url
-        if request_id is None:
-            return url
-        return f"{url}/{request_id}"
+        pass
 
     @staticmethod
     def _parse_request_id(data: RequestSpec) -> str:
         """Parses batch request id from multiple possible inputs"""
-        if isinstance(data, BaseBatchRequest):
-            return data.request_id
-        if isinstance(data, dict):
-            return data["id"]
-        if isinstance(data, str):
-            return data
-        raise ValueError(f"Expected a BatchRequest, dictionary or a string, got {data}.")
+        pass
 
 
 class BaseBatchRequest:
@@ -85,12 +74,12 @@ class BaseBatchRequest:
 
     def to_dict(self) -> JsonDict:
         """Transforms itself into a dictionary form."""
-        raise NotImplementedError("Method should be implemented or provided via `dataclass_json` decorator.")
+        pass
 
     @classmethod
     def from_dict(cls: Type[Self], json_dict: JsonDict) -> Self:
         """Transforms itself into a dictionary form."""
-        raise NotImplementedError("Method should be implemented or provided via `dataclass_json` decorator.")
+        pass
 
     def __repr__(self) -> str:
         """A representation that shows the basic parameters of a batch job"""
@@ -107,12 +96,4 @@ class BaseBatchRequest:
         :param status: One or more status codes on which to raise an error. The default is `'FAILED'`.
         :raises: RuntimeError
         """
-        if isinstance(status, (str, BatchRequestStatus)):
-            status = [status]
-        status_list = [BatchRequestStatus(_status) for _status in status]
-
-        if self.status in status_list:
-            formatted_error_message = f' and error message: "{self.error}"' if self.error else ""
-            raise RuntimeError(
-                f"Raised for batch request {self.request_id} with status {self.status.value}{formatted_error_message}"
-            )
+        pass

@@ -144,7 +144,7 @@ class SHConfig(_SHConfig):
 
     @staticmethod
     def _get_profile(profile: str | None) -> str:
-        return profile if profile is not None else os.environ.get(SH_PROFILE_ENV_VAR, default=DEFAULT_PROFILE)
+        pass
 
     @classmethod
     def load(cls, profile: str | None = None) -> SHConfig:
@@ -152,47 +152,22 @@ class SHConfig(_SHConfig):
 
         :param profile: Which profile to load from the configuration file.
         """
-        profile = cls._get_profile(profile)
-        filename = cls.get_config_location()
-        if not os.path.exists(filename):
-            cls(use_defaults=True).save()  # store default configuration to standard location
-
-        with open(filename, "rb") as cfg_file:
-            configurations_dict = tomli.load(cfg_file)
-
-        if profile not in configurations_dict:
-            raise KeyError(f"Profile `{profile}` not found in configuration file.")
-
-        return cls(use_defaults=True, **configurations_dict[profile])
+        pass
 
     def save(self, profile: str | None = None) -> None:
         """Saves configuration parameters to the config file at `SHConfig.get_config_location()`.
 
         :param profile: Under which profile to save the configuration.
         """
-        profile = self._get_profile(profile)
-        file_path = Path(self.get_config_location())
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        if file_path.exists():
-            with open(file_path, "rb") as cfg_file:
-                current_configuration = tomli.load(cfg_file)
-        else:
-            current_configuration = {}
-
-        current_configuration[profile] = self._get_dict_of_diffs_from_defaults()
-        with open(file_path, "wb") as cfg_file:
-            tomli_w.dump(current_configuration, cfg_file)
+        pass
 
     def _get_dict_of_diffs_from_defaults(self) -> dict[str, str | float]:
         """Returns a dictionary containing key: value pairs for parameters that have values different from defaults."""
-        current_profile_config = self.to_dict(mask_credentials=False)
-        default_values = SHConfig(use_defaults=True).to_dict(mask_credentials=False)
-        return {key: value for key, value in current_profile_config.items() if default_values[key] != value}
+        pass
 
     def copy(self) -> SHConfig:
         """Makes a copy of an instance of `SHConfig`"""
-        return copy.copy(self)
+        pass
 
     def to_dict(self, mask_credentials: bool = True) -> dict[str, str | float]:
         """Get a dictionary representation of the `SHConfig` class.
@@ -200,21 +175,13 @@ class SHConfig(_SHConfig):
         :param mask_credentials: Wether to mask fields containing credentials.
         :return: A dictionary with configuration parameters
         """
-        config_params = asdict(self)
-
-        if mask_credentials:
-            for param in self.CREDENTIALS:
-                config_params[param] = self._mask_credentials(config_params[param])
-
-        return config_params
+        pass
 
     def _mask_credentials(self, value: str) -> str:
         """In case a parameter that holds credentials is given it will mask its value"""
-        hide_size = min(max(len(value) - 4, 10), len(value))
-        return "*" * hide_size + value[hide_size:]
+        pass
 
     @classmethod
     def get_config_location(cls) -> str:
         """Returns the default location of the user configuration file on disk."""
-        config_folder = os.getenv("XDG_CONFIG_HOME", os.path.expanduser("~/.config"))
-        return os.path.join(config_folder, "sentinelhub", "config.toml")
+        pass

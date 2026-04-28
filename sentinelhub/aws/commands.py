@@ -45,22 +45,4 @@ def aws(
       sentinelhub.aws --product S2A_MSIL2A_20180402T151801_N0207_R068_T33XWJ_20180402T202222
       sentinelhub.aws --tile T33XWJ 2018-04-02 --l2a
     """
-    band_list = None if bands is None else bands.split(",")
-    data_collection = DataCollection.SENTINEL2_L2A if l2a else DataCollection.SENTINEL2_L1C
-    if info:
-        if product is None:
-            click.echo(get_safe_format(tile=tile, entire_product=entire, data_collection=data_collection))
-        else:
-            click.echo(get_safe_format(product_id=product))
-    else:
-        if product is None:
-            download_safe_format(
-                tile=tile,
-                folder=folder,
-                redownload=redownload,
-                entire_product=entire,
-                bands=band_list,
-                data_collection=data_collection,
-            )
-        else:
-            download_safe_format(product_id=product, folder=folder, redownload=redownload, bands=band_list)
+    pass

@@ -30,26 +30,7 @@ def decode_data(response_content: bytes, data_type: MimeType) -> Any:
     :return: downloaded data
     :raises: ValueError
     """
-    if data_type is MimeType.JSON:
-        response_text = response_content.decode("utf-8")
-        if not response_text:
-            return response_text
-        return json.loads(response_text)
-    if data_type is MimeType.TAR:
-        return decode_tar(response_content)
-    if MimeType.is_image_format(data_type):
-        return decode_image(response_content, data_type)
-    if data_type is MimeType.XML or data_type is MimeType.GML or data_type is MimeType.SAFE:
-        return ElementTree.fromstring(response_content)
-
-    try:
-        return {
-            MimeType.RAW: response_content,
-            MimeType.TXT: response_content,
-            MimeType.ZIP: BytesIO(response_content),
-        }[data_type]
-    except KeyError as exception:
-        raise ValueError(f"Decoding data format {data_type} is not supported") from exception
+    pass
 
 
 def decode_image(data: bytes, image_type: MimeType) -> np.ndarray:
@@ -61,17 +42,7 @@ def decode_image(data: bytes, image_type: MimeType) -> np.ndarray:
     :return: image as numpy array
     :raises: ImageDecodingError
     """
-    bytes_data = BytesIO(data)
-    if image_type is MimeType.TIFF:
-        image = tiff.imread(bytes_data)
-    elif image_type is MimeType.JP2:
-        image = decode_jp2_image(bytes_data)
-    else:
-        image = decode_image_with_pillow(bytes_data)
-
-    if image is None:
-        raise ImageDecodingError("Unable to decode image")
-    return image
+    pass
 
 
 def decode_image_with_pillow(stream: IO | str) -> np.ndarray:
@@ -80,9 +51,7 @@ def decode_image_with_pillow(stream: IO | str) -> np.ndarray:
     :param stream: A binary stream format or a filename.
     :return: A numpy array representing an image of shape (height, width) or (height, width, channels).
     """
-    with warnings.catch_warnings():
-        warnings.simplefilter("ignore", Image.DecompressionBombWarning)
-        return np.array(Image.open(stream))
+    pass
 
 
 def decode_jp2_image(stream: IO) -> np.ndarray:
@@ -91,10 +60,7 @@ def decode_jp2_image(stream: IO) -> np.ndarray:
     :param stream: A binary stream format.
     :return: A numpy array representing an image of shape (height, width) or (height, width, channels).
     """
-    image = decode_image_with_pillow(stream)
-    bit_depth = get_jp2_bit_depth(stream)
-
-    return fix_jp2_image(image, bit_depth)
+    pass
 
 
 def decode_tar(data: bytes | BytesIO) -> dict[str, object]:
@@ -103,17 +69,7 @@ def decode_tar(data: bytes | BytesIO) -> dict[str, object]:
     :param data: Data to decode
     :return: A dictionary of decoded files from a tar file
     """
-    if isinstance(data, bytes):
-        data = BytesIO(data)
-
-    with tarfile.open(fileobj=data) as tar:
-        decoded_files = {}
-        for member in tar.getmembers():
-            file = tar.extractfile(member)
-            if file is not None:
-                decoded_files[member.name] = decode_data(file.read(), get_data_format(member.name))
-
-        return decoded_files
+    pass
 
 
 def decode_sentinelhub_err_msg(response: Response) -> str:
@@ -122,31 +78,7 @@ def decode_sentinelhub_err_msg(response: Response) -> str:
     :param response: Sentinel Hub service response
     :return: An error message
     """
-    if not isinstance(response.content, bytes) or not response.content:
-        return ""
-
-    try:
-        json_message = json.loads(response.content)
-        if isinstance(json_message, dict) and "error" in json_message:
-            json_message = json_message["error"]
-
-        if isinstance(json_message, str):
-            return json_message
-        return json.dumps(json_message)
-    except JSONDecodeError:
-        pass
-
-    try:
-        server_message = []
-        for elem in decode_data(response.content, MimeType.XML):
-            if "ServiceException" in elem.tag or "Message" in elem.tag or elem.tag == "body":
-                for text in elem.itertext():
-                    stripped_text = text.strip()
-                    if stripped_text:
-                        server_message.append(stripped_text)
-        return " ".join(server_message)
-    except ElementTree.ParseError:
-        return response.text
+    pass
 
 
 def get_jp2_bit_depth(stream: IO) -> int:
@@ -155,18 +87,7 @@ def get_jp2_bit_depth(stream: IO) -> int:
     :param stream: binary stream format
     :return: bit depth
     """
-    stream.seek(0)
-    while True:
-        read_buffer = stream.read(8)
-        if len(read_buffer) < 8:
-            raise ValueError("Image Header Box not found in JPEG2000 file")
-
-        _, box_id = struct.unpack(">I4s", read_buffer)
-
-        if box_id == b"ihdr":
-            read_buffer = stream.read(14)
-            params = struct.unpack(">IIHBBBB", read_buffer)
-            return (params[3] & 0x7F) + 1
+    pass
 
 
 def fix_jp2_image(image: np.ndarray, bit_depth: int) -> np.ndarray:
@@ -177,20 +98,7 @@ def fix_jp2_image(image: np.ndarray, bit_depth: int) -> np.ndarray:
     :param bit_depth: A bit depth of jp2 image encoding
     :return: corrected image
     """
-    if bit_depth in [8, 16]:
-        return image
-    if bit_depth == 15:
-        try:
-            return image >> 1
-        except TypeError as exception:
-            raise OSError(
-                "Failed to read JPEG2000 image correctly. Most likely reason is that Pillow did not "
-                "install OpenJPEG library correctly. Try reinstalling Pillow from a wheel"
-            ) from exception
-
-    raise ValueError(
-        f"Bit depth {bit_depth} of jp2 image is currently not supported. Please raise an issue on package Github page"
-    )
+    pass
 
 
 def get_data_format(filename: str) -> MimeType:
@@ -199,5 +107,4 @@ def get_data_format(filename: str) -> MimeType:
     :param filename: name of file
     :return: file extension
     """
-    fmt_ext = filename.split(".")[-1]
-    return MimeType.from_string(fmt_ext)
+    pass
